@@ -1,6 +1,12 @@
 # 🚀 Deployment Guide - TalentScout Hiring Assistant
 
-## Option 1: Streamlit Community Cloud (FREE & Recommended)
+## ✅ **LIVE DEPLOYMENT**
+**🎉 Successfully Deployed!**  
+**Live URL**: https://talentscout-hiring-assist.streamlit.app/
+
+---
+
+## Option 1: Streamlit Community Cloud (FREE & Recommended) ✅ USED
 
 ### Step-by-Step Deployment:
 
@@ -98,10 +104,10 @@ streamlit run TalentScout_HiringAssistant_Streamlit.py --server.port 8501 --serv
 4. Add API key in secrets
 5. Deploy!
 
-Your live URL will be something like: `https://hiring-assistant-kshitij.streamlit.app`
+Your live URL will be something like: `https://talentscout-hiring-assist.streamlit.app/` ✅ **DEPLOYED**
 
 Perfect for:
-- ✅ Demo videos
-- ✅ Portfolio showcase
-- ✅ Assignment submission
-- ✅ Sharing with recruiters
+- ✅ Demo videos ✅ **COMPLETED**
+- ✅ Portfolio showcase ✅ **READY**
+- ✅ Assignment submission ✅ **READY**
+- ✅ Sharing with recruiters ✅ **READY**

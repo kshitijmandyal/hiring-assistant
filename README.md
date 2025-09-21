@@ -10,11 +10,12 @@
 ## 🎯 **Live Demo**
 🚀 **[Try it Live](https://talentscout-hiring-assist.streamlit.app/)** 
 
-## 📸 **Screenshots**
+## 📸 **Key Features Preview**
 
-| Main Interface | Question Generation | Interview Summary |
-|----------------|-------------------|------------------|
-| ![Main](https://via.placeholder.com/250x150) | ![Questions](https://via.placeholder.com/250x150) | ![Summary](https://via.placeholder.com/250x150) |
+✨ **Interactive Candidate Interface** - Streamlined form collection with smart validation  
+🤖 **Dual AI Modes** - Fast local generation + Gemini AI-powered questions  
+📊 **Real-time Evaluation** - Automated scoring with detailed feedback  
+🎯 **Tech Stack Adaptation** - Questions tailored to candidate's declared technologies
 
 ## ✨ **Features**
 ## ✨ **Features**
@@ -45,8 +46,8 @@
 
 ### **Method 1: One-Click Setup**
 ```bash
-git clone https://github.com/yourusername/talentscout-hiring-assistant.git
-cd talentscout-hiring-assistant
+git clone https://github.com/kshitijmandyal/hiring-assistant.git
+cd hiring-assistant
 pip install -r requirements.txt
 streamlit run TalentScout_HiringAssistant_Streamlit.py
 ```
@@ -133,13 +134,16 @@ We welcome contributions! Here's how you can help:
 - 🤖 Additional AI model integrations
 - 🎨 UI/UX improvements
 
-## 📈 **Roadmap**
+## 🎯 **Assignment Highlights**
 
-- [ ] **v2.0**: Database integration (PostgreSQL)
-- [ ] **v2.1**: User authentication & role management
-- [ ] **v2.2**: Advanced analytics dashboard
-- [ ] **v2.3**: Multi-tenant support
-- [ ] **v3.0**: Mobile app development
+### **Technical Skills Demonstrated**
+- ✅ **AI Integration**: Successfully integrated Google Gemini API
+- ✅ **Web Development**: Built responsive Streamlit application
+- ✅ **Data Management**: Implemented session state and data validation
+- ✅ **Error Handling**: Comprehensive fallback mechanisms
+- ✅ **Security**: Environment variable management and data anonymization
+- ✅ **Deployment**: Live production deployment on Streamlit Cloud
+- ✅ **Documentation**: Professional README and deployment guides
 
 ## 🐛 **Troubleshooting**
 
@@ -165,8 +169,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 **Kshitij Mandyal** - *AI/ML Intern Assignment*
 - 📧 Email: [mandyalk@gmail.com](mailto:mandyalk@gmail.com)
-- 💼 LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- 🐙 GitHub: [@yourusername](https://github.com/yourusername)
+- � GitHub: [@kshitijmandyal](https://github.com/kshitijmandyal)
+- � Live Demo: [TalentScout App](https://talentscout-hiring-assist.streamlit.app/)
 
 ## 🙏 **Acknowledgments**
 
@@ -176,7 +180,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## ⭐ **Star History**
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/talentscout-hiring-assistant&type=Date)](https://star-history.com/#yourusername/talentscout-hiring-assistant&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=kshitijmandyal/hiring-assistant&type=Date)](https://star-history.com/#kshitijmandyal/hiring-assistant&Date)
 
 ---
 
@@ -186,7 +190,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 **⭐ Star this repo if you found it helpful!**
 
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/talentscout-hiring-assistant?style=social)](https://github.com/yourusername/talentscout-hiring-assistant/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/yourusername/talentscout-hiring-assistant?style=social)](https://github.com/yourusername/talentscout-hiring-assistant/network/members)
+[![GitHub stars](https://img.shields.io/github/stars/kshitijmandyal/hiring-assistant?style=social)](https://github.com/kshitijmandyal/hiring-assistant/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/kshitijmandyal/hiring-assistant?style=social)](https://github.com/kshitijmandyal/hiring-assistant/network/members)
 
 </div>
