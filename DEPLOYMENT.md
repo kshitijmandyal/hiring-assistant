@@ -18,8 +18,8 @@
    - In app settings, go to "Secrets"
    - Add the following:
    ```toml
-   GOOGLE_API_KEY = "AIzaSyB5P199V6-a-dPMxFSJf2VNQbywZkxzY9Y"
-   GEMINI_API_KEY = "AIzaSyB5P199V6-a-dPMxFSJf2VNQbywZkxzY9Y"
+   GOOGLE_API_KEY = "your-actual-google-api-key-here"
+   GEMINI_API_KEY = "your-actual-gemini-api-key-here"
    ```
 
 4. **Deploy**
