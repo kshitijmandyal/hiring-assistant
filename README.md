@@ -8,7 +8,7 @@
 > **A sophisticated, AI-powered hiring assistant built with Streamlit that revolutionizes technical candidate screening through intelligent question generation and automated evaluation.**
 
 ## 🎯 **Live Demo**
-🚀 **[Try it Live](http://your-deployment-url.com)** (Coming Soon)
+🚀 **[Try it Live](https://talentscout-hiring-assist.streamlit.app/)** 
 
 ## 📸 **Screenshots**
 
