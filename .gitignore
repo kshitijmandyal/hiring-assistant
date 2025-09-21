@@ -4,6 +4,12 @@ venv/
 env/
 ENV/
 
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+.streamlit/secrets.toml
+
 # Python
 __pycache__/
 *.py[cod]

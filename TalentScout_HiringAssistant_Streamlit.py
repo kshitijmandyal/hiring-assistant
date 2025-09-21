@@ -30,8 +30,13 @@ except Exception as e:
 USE_GEMINI = False
 try:
     import google.generativeai as genai
-    # Check both possible environment variable names
-    api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+    # Check both possible environment variable names and Streamlit secrets
+    api_key = None
+    if hasattr(st, 'secrets'):
+        api_key = st.secrets.get("GOOGLE_API_KEY") or st.secrets.get("GEMINI_API_KEY")
+    if not api_key:
+        api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+    
     if api_key:
         # Use getattr to handle different API versions
         configure_func = getattr(genai, 'configure', None)
