@@ -802,9 +802,5 @@ streamlit run TalentScout_HiringAssistant_Streamlit.py
 This is a sample project for an assignment. Adapt and extend as needed.
 """
 
-# Optionally write README to disk for quick download
-try:
-    with open("README_TalentScout.md", "w", encoding="utf-8") as f:
-        f.write(README_MD)
-except Exception:
-    pass
+# README content stored as string for reference
+# (No longer auto-generating separate file - using main README.md instead)
