@@ -1,196 +1,111 @@
+# TalentScout
 
-# TalentScout — AI-Powered Hiring Assistant 🤖
+[![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)](https://python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Claude](https://img.shields.io/badge/Claude-D97757?logo=anthropic&logoColor=white)](https://docs.claude.com/)
+[![Postgres](https://img.shields.io/badge/Postgres-17-4169E1?logo=postgresql&logoColor=white)](https://postgresql.org/)
 
-[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
-[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org/)
-[![Gemini AI](https://img.shields.io/badge/Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
+Technical screening tool. An interviewer enters a candidate and their tech stack,
+Claude writes questions for each technology, and the answers are graded against a
+rubric generated alongside the questions.
 
-> **A sophisticated, AI-powered hiring assistant built with Streamlit that revolutionizes technical candidate screening through intelligent question generation and automated evaluation.**
+## How it works
 
-## 🎯 **Live Demo**
-🚀 **[Try it Live](https://talentscout-hiring-assist.streamlit.app/)** 
+1. An interviewer signs in and adds a candidate.
+2. They pick the candidate's technologies. Claude writes questions for each one,
+   pitched at the seniority implied by their years of experience.
+3. Each question ships with a rubric — two to four concrete things a strong answer
+   contains.
+4. The candidate gets a link scoped to that one interview and answers in their own time.
+5. The interviewer finalises. Each answer is graded against its own rubric, with a
+   per-criterion verdict and a summary for whoever reads it next.
 
-## 📸 **Key Features Preview**
+Coverage is reported separately from score, so skipping a question doesn't read the
+same as answering it badly.
 
-✨ **Interactive Candidate Interface** - Streamlined form collection with smart validation  
-🤖 **Dual AI Modes** - Fast local generation + Gemini AI-powered questions  
-📊 **Real-time Evaluation** - Automated scoring with detailed feedback  
-🎯 **Tech Stack Adaptation** - Questions tailored to candidate's declared technologies
+## Architecture
 
-## ✨ **Features**
-## ✨ **Features**
+```
+backend/src/talentscout/
+├── domain/        pure models and rules — imports no framework
+├── interfaces.py  protocols: the seams everything else plugs into
+├── services/      use cases, depending only on domain + interfaces
+├── adapters/      claude/ and db/ — the only places those libraries appear
+├── mappers/       all translation between layers
+└── api/           routers, schemas, dependency wiring, error handlers
+```
 
-### 🎯 **Core Functionality**
-- **Smart Candidate Profiling**: Collects comprehensive candidate information with validation
-- **AI-Powered Question Generation**: Uses Google Gemini AI for sophisticated technical questions
-- **Technology-Specific Assessment**: Tailored questions for 15+ tech stacks (Python, React, AWS, etc.)
-- **Difficulty Scaling**: Automatically adjusts question difficulty based on experience level
-- **Interactive Chat Interface**: Natural language processing for seamless user interaction
+The rule that keeps it honest: `domain/` and `services/` may not import `anthropic`,
+`sqlalchemy`, or `fastapi`. That's enforced by an `import-linter` contract in CI, not
+by convention. It means the core logic runs in a plain script with no server and no
+database.
 
-### 🚀 **Advanced Features**
-- **Dual Generation Modes**: 
-  - ⚡ **Fast Local** (Instant results)
-  - 🤖 **AI-Powered** (High-quality, contextual questions)
-- **Real-time Evaluation**: Automated scoring with detailed feedback
-- **Progress Tracking**: Live generation progress with performance metrics
-- **Data Export**: JSON export functionality for interview records
-- **Response Analysis**: Keyword-based evaluation with star ratings
+The frontend mirrors the split — rendering in components, everything else in hooks and
+helpers, all API paths in one file.
 
-### 🛡️ **Security & Privacy**
-- **GDPR Compliant**: Anonymized data storage with PII masking
-- **Secure API Integration**: Environment-based API key management
-- **Input Validation**: Comprehensive email/phone validation
-- **Session Management**: Secure in-memory data handling
+## Grading and guardrails
 
-## 🎬 **Quick Start**
+Candidates are graded on what they wrote, not on how much of it there was. Scoring is
+per-criterion against the rubric the question was generated with.
 
-### **Method 1: One-Click Setup**
+Candidates can also see their own questions, and benefit from a higher score, so their
+answers are treated as untrusted input:
+
+- Answers are escaped and delimited before reaching the model, which is told to judge
+  the contents rather than follow them.
+- The returned grade is checked against the rubric that was actually sent. Invented or
+  dropped criteria are discarded and flagged.
+- A score the met criteria can't support is clamped.
+
+The last two are plain code with no model output involved, so no amount of persuasion
+in an answer can talk them out of it. Anything a guardrail touched is flagged in the
+result rather than hidden, so the interviewer knows to read that answer themselves.
+
+## Running it
+
+Needs Docker, [uv](https://docs.astral.sh/uv/), and Node 20+.
+
 ```bash
 git clone https://github.com/kshitijmandyal/hiring-assistant.git
 cd hiring-assistant
-pip install -r requirements.txt
-streamlit run TalentScout_HiringAssistant_Streamlit.py
+
+docker compose up -d                    # postgres
+
+cd backend
+cp .env.example .env                    # add ANTHROPIC_API_KEY and JWT_SECRET
+uv sync
+uv run alembic upgrade head
+uv run uvicorn talentscout.main:app --reload
+
+cd ../frontend
+npm install
+npm run dev
 ```
 
-### **Method 2: With AI Features**
+Frontend on http://localhost:5173, API docs on http://localhost:8000/docs.
+
+Generate a JWT secret with:
+
 ```bash
-# Set up Gemini AI (optional but recommended)
-export GOOGLE_API_KEY="your-gemini-api-key"
-# or on Windows:
-# set GOOGLE_API_KEY=your-gemini-api-key
-
-streamlit run TalentScout_HiringAssistant_Streamlit.py
+python -c "import secrets; print(secrets.token_urlsafe(48))"
 ```
 
-**🎉 That's it! Open http://localhost:8501 in your browser.**
+## Deploying
 
-## 🏗️ **Architecture**
+See [DEPLOY.md](DEPLOY.md). Render + Neon, both free, no card needed.
 
-```mermaid
-graph TD
-    A[User Interface] --> B[Streamlit Frontend]
-    B --> C[Session Management]
-    C --> D[Question Generation Engine]
-    D --> E[Local Generator]
-    D --> F[Gemini AI API]
-    C --> G[Response Evaluator]
-    G --> H[Data Export]
-    
-    style A fill:#e1f5fe
-    style F fill:#f3e5f5
-    style G fill:#e8f5e8
-```
+## Status
 
-## 🛠️ **Technology Stack**
+Working: auth, candidate intake, tech stack selection, persistence, the full API, and
+the frontend flow.
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Frontend** | Streamlit | Interactive web interface |
-| **AI Engine** | Google Gemini AI | Advanced question generation |
-| **Backend** | Python 3.8+ | Core application logic |
-| **Data** | JSON/Session State | Lightweight data management |
-| **Deployment** | Streamlit Cloud | Easy deployment platform |
+Not yet verified: question generation and grading have not been run against a live
+Anthropic key, so the prompts are untested in practice.
 
-## 📊 **Performance Metrics**
+There are no tests yet. The protocol seams are there so they can be added without
+restructuring anything.
 
-| Feature | Performance | Details |
-|---------|------------|---------|
-| **Local Generation** | ⚡ 0.01s | Instant template-based questions |
-| **AI Generation** | 🤖 2-3s | High-quality contextual questions |
-| **Evaluation** | ⚡ 0.1s | Real-time response scoring |
-| **Data Export** | ⚡ 0.05s | JSON download functionality |
+## Licence
 
-## 🎯 **Use Cases**
-
-- **🏢 HR Departments**: Streamline technical candidate screening
-- **🚀 Startups**: Efficient hiring process automation  
-- **🎓 Educational**: Interview preparation platform
-- **💼 Recruiters**: Standardized technical assessment tool
-
-## 📱 **User Journey**
-
-1. **📝 Profile Creation**: Enter candidate details with smart validation
-2. **🔧 Tech Stack Declaration**: Specify technical expertise areas
-3. **🎯 Question Generation**: Choose between fast local or AI-powered generation
-4. **💬 Interactive Interview**: Answer questions with real-time chat support
-5. **📊 Automatic Evaluation**: Receive detailed scoring and feedback
-6. **📋 Summary Report**: Export comprehensive interview summary
-
-## 🤝 **Contributing**
-
-We welcome contributions! Here's how you can help:
-
-### **🚀 Quick Contribution Guide**
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
-
-### **💡 Contribution Ideas**
-- 🌐 Multi-language support
-- 📱 Mobile-responsive design
-- 🔍 Advanced analytics dashboard
-- 🤖 Additional AI model integrations
-- 🎨 UI/UX improvements
-
-## 🎯 **Assignment Highlights**
-
-### **Technical Skills Demonstrated**
-- ✅ **AI Integration**: Successfully integrated Google Gemini API
-- ✅ **Web Development**: Built responsive Streamlit application
-- ✅ **Data Management**: Implemented session state and data validation
-- ✅ **Error Handling**: Comprehensive fallback mechanisms
-- ✅ **Security**: Environment variable management and data anonymization
-- ✅ **Deployment**: Live production deployment on Streamlit Cloud
-- ✅ **Documentation**: Professional README and deployment guides
-
-## 🐛 **Troubleshooting**
-
-### **Common Issues**
-
-| Issue | Solution |
-|-------|----------|
-| **Streamlit not found** | `pip install streamlit` |
-| **Port already in use** | `streamlit run app.py --server.port 8502` |
-| **Gemini API errors** | Check API key and quota limits |
-| **Dependencies missing** | `pip install -r requirements.txt` |
-
-### **Debug Tools**
-- 🔧 **API Debugger**: Run `python debug_gemini.py` to test Gemini integration
-- 📊 **Performance Monitor**: Built-in timing displays in the app
-- 🔍 **Console Logs**: Check terminal for detailed error messages
-
-## 📄 **License**
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 **Author**
-
-**Kshitij Mandyal** - *AI/ML Intern Assignment*
-- 📧 Email: [mandyalk@gmail.com](mailto:mandyalk@gmail.com)
-- � GitHub: [@kshitijmandyal](https://github.com/kshitijmandyal)
-- � Live Demo: [TalentScout App](https://talentscout-hiring-assist.streamlit.app/)
-
-## 🙏 **Acknowledgments**
-
-- 🤖 **Google AI** for the Gemini API
-- 🎨 **Streamlit** for the amazing framework
-- 🌟 **Open Source Community** for inspiration and support
-
-## ⭐ **Star History**
-
-[![Star History Chart](https://api.star-history.com/svg?repos=kshitijmandyal/hiring-assistant&type=Date)](https://star-history.com/#kshitijmandyal/hiring-assistant&Date)
-
----
-
-<div align="center">
-
-**🎯 Made with ❤️ for better hiring experiences**
-
-**⭐ Star this repo if you found it helpful!**
-
-[![GitHub stars](https://img.shields.io/github/stars/kshitijmandyal/hiring-assistant?style=social)](https://github.com/kshitijmandyal/hiring-assistant/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/kshitijmandyal/hiring-assistant?style=social)](https://github.com/kshitijmandyal/hiring-assistant/network/members)
-
-</div>
+MIT — see [LICENSE](LICENSE).
