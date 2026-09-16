@@ -1,0 +1,36 @@
+@use '@/styles/abstracts' as a;
+
+.view {
+  @include a.stack(a.$space-xl);
+}
+
+.header {
+  @include a.card;
+  @include a.stack(a.$space-md);
+}
+
+.group {
+  @include a.stack(a.$space-md);
+}
+
+.technology {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  // Sticky headings sit over scrolling cards, so they need their own backdrop.
+  background: a.$color-background;
+  padding-block: a.$space-sm;
+  border-bottom: 1px solid a.$color-border;
+}
+
+.footer {
+  @include a.card;
+  @include a.stack(a.$space-md);
+  align-items: flex-start;
+
+  @include a.respond-to('sm') {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
