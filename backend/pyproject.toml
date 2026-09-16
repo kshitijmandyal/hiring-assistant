@@ -1,0 +1,90 @@
+[project]
+name = "talentscout"
+version = "0.1.0"
+description = "AI-powered technical screening assistant"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.121.0",
+    "uvicorn[standard]>=0.40.0",
+    "anthropic>=0.75.0",
+    "pydantic[email]>=2.12.0",
+    "pydantic-settings>=2.12.0",
+    "sqlalchemy[asyncio]>=2.0.44",
+    "alembic>=1.17.0",
+    "psycopg[binary]>=3.2.0",
+    "python-json-logger>=4.0.0",
+    "phonenumbers>=9.0.0",
+    "pyjwt>=2.10.0",
+    "bcrypt>=5.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.16.0",
+    "mypy>=1.19.0",
+    "import-linter>=2.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/talentscout"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+src = ["src"]
+# Alembic writes these from its own template; style-fixing them creates noise in
+# every migration diff for no benefit.
+extend-exclude = ["src/talentscout/adapters/db/migrations/versions"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",    # pycodestyle
+    "F",         # pyflakes
+    "I",         # isort
+    "N",         # pep8-naming
+    "UP",        # pyupgrade
+    "B",         # flake8-bugbear
+    "A",         # flake8-builtins
+    "C4",        # flake8-comprehensions
+    "DTZ",       # flake8-datetimez
+    "T20",       # flake8-print
+    "SIM",       # flake8-simplify
+    "TC",        # flake8-type-checking
+    "PTH",       # flake8-use-pathlib
+    "RUF",
+]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_unreachable = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = "talentscout.adapters.db.migrations.*"
+ignore_errors = true
+
+# Layering is the point of this codebase; a comment would not enforce it.
+[tool.importlinter]
+root_package = "talentscout"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Domain and services stay free of frameworks"
+type = "forbidden"
+source_modules = ["talentscout.domain", "talentscout.services", "talentscout.interfaces"]
+forbidden_modules = ["anthropic", "sqlalchemy", "fastapi"]
+
+[[tool.importlinter.contracts]]
+name = "Layers point inwards"
+type = "layers"
+layers = [
+    "talentscout.api",
+    "talentscout.adapters",
+    "talentscout.services",
+    "talentscout.domain",
+]
