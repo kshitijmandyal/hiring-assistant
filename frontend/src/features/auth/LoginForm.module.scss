@@ -1,0 +1,8 @@
+@use '@/styles/abstracts' as a;
+
+.form {
+  @include a.card;
+  @include a.stack(a.$space-lg);
+  max-width: 420px;
+  margin-inline: auto;
+}

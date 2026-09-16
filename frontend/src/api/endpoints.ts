@@ -7,6 +7,13 @@ export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1';
 
 export const ENDPOINTS = {
+  auth: {
+    register: () => '/auth/register',
+    login: () => '/auth/login',
+    refresh: () => '/auth/refresh',
+    logout: () => '/auth/logout',
+    me: () => '/auth/me',
+  },
   candidates: {
     create: () => '/candidates',
     byId: (candidateId: string) => `/candidates/${candidateId}`,
@@ -14,6 +21,7 @@ export const ENDPOINTS = {
   },
   interviews: {
     byId: (interviewId: string) => `/interviews/${interviewId}`,
+    invite: (interviewId: string) => `/interviews/${interviewId}/invite`,
     answers: (interviewId: string) => `/interviews/${interviewId}/answers`,
     assessment: (interviewId: string) => `/interviews/${interviewId}/assessment`,
   },

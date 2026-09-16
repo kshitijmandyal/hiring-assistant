@@ -1,0 +1,6 @@
+@use '@/styles/abstracts' as a;
+
+.card {
+  @include a.card;
+  @include a.stack(a.$space-md);
+}

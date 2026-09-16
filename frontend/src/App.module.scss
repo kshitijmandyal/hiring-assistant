@@ -12,6 +12,13 @@
   margin-bottom: a.$space-xl;
 }
 
+.mastheadInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: a.$space-md;
+}
+
 .brand {
   font-weight: a.$weight-semibold;
   font-size: a.$text-lg;
