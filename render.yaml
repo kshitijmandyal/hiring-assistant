@@ -1,0 +1,50 @@
+# Render blueprint. Create the Postgres database on Neon separately and paste its
+# connection string as DATABASE_URL — Render's own free Postgres is deliberately
+# not used here, because free instances expire 30 days after creation.
+
+services:
+  - type: web
+    name: talentscout-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: frankfurt
+    healthCheckPath: /health
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false          # set in the Render dashboard, never in this file
+      - key: DATABASE_URL
+        sync: false          # Neon connection string, with +psycopg in the scheme
+      - key: JWT_SECRET
+        generateValue: true  # Render generates and stores a strong value
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_JSON
+        value: "true"
+      - key: CORS_ORIGINS
+        sync: false          # JSON array, e.g. ["https://talentscout.pages.dev"]
+
+  - type: web
+    name: talentscout-web
+    runtime: static
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: ./frontend/dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false          # https://talentscout-api.onrender.com/api/v1
+    routes:
+      # The SPA has no server-side routing, so unknown paths must return index.html.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin

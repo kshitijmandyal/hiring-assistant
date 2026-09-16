@@ -1,0 +1,37 @@
+@use '../abstracts' as a;
+
+body {
+  font-family: a.$font-sans;
+  font-size: a.$text-base;
+  color: a.$color-text;
+  background: a.$color-background;
+}
+
+h1 {
+  font-size: a.$text-2xl;
+  font-weight: a.$weight-semibold;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: a.$text-xl;
+  font-weight: a.$weight-semibold;
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-size: a.$text-lg;
+  font-weight: a.$weight-medium;
+}
+
+code,
+pre {
+  font-family: a.$font-mono;
+  font-size: a.$text-sm;
+}
+
+a {
+  color: a.$brand-600;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}

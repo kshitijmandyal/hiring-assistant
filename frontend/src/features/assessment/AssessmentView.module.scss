@@ -1,0 +1,65 @@
+@use 'sass:map';
+@use '@/styles/abstracts' as a;
+
+.view {
+  @include a.stack(a.$space-lg);
+}
+
+.summary {
+  @include a.card;
+  @include a.stack(a.$space-lg);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: a.$space-md;
+}
+
+.metric {
+  @include a.stack(a.$space-xs);
+  padding: a.$space-md;
+  background: a.$grey-50;
+  border-radius: a.$radius-md;
+}
+
+.metricValue {
+  font-size: a.$text-2xl;
+  font-weight: a.$weight-semibold;
+  line-height: 1.1;
+}
+
+// One class per recommendation, generated from the shared colour map so the
+// chip colours cannot drift from the rest of the palette.
+@each $name, $color in a.$recommendation-colors {
+  .#{$name} {
+    background-color: rgba($color, 0.12);
+    color: $color;
+    font-weight: a.$weight-medium;
+  }
+}
+
+.detail {
+  border: 1px solid a.$color-border;
+  border-radius: a.$radius-md !important;
+
+  &::before {
+    display: none;
+  }
+}
+
+.questionPrompt {
+  font-weight: a.$weight-medium;
+}
+
+.criterion {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: a.$space-sm;
+  align-items: start;
+}
+
+.list {
+  margin: a.$space-xs 0 0;
+  padding-left: a.$space-lg;
+}

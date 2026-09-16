@@ -1,0 +1,24 @@
+@use '../abstracts' as a;
+
+.u-container {
+  width: 100%;
+  max-width: a.$content-max-width;
+  margin-inline: auto;
+  padding-inline: a.$space-md;
+
+  @include a.respond-to('sm') {
+    padding-inline: a.$space-lg;
+  }
+}
+
+.u-stack {
+  @include a.stack;
+}
+
+.u-cluster {
+  @include a.cluster;
+}
+
+.u-visually-hidden {
+  @include a.visually-hidden;
+}

@@ -1,0 +1,23 @@
+@use '@/styles/abstracts' as a;
+
+.form {
+  @include a.card;
+  @include a.stack(a.$space-lg);
+}
+
+.fields {
+  display: grid;
+  gap: a.$space-md;
+
+  @include a.respond-to('sm') {
+    // Contact details read better side by side once there is room.
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+// Name and desired positions span the full width; the rest pair up.
+.fullWidth {
+  @include a.respond-to('sm') {
+    grid-column: 1 / -1;
+  }
+}
