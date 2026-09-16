@@ -2,7 +2,7 @@
 name = "talentscout"
 version = "0.1.0"
 description = "AI-powered technical screening assistant"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<3.14"
 dependencies = [
     "fastapi>=0.121.0",
     "uvicorn[standard]>=0.40.0",
@@ -68,6 +68,10 @@ select = [
     "PTH",       # flake8-use-pathlib
     "RUF",
 ]
+
+[tool.ruff.lint.per-file-ignores]
+# CLI scripts print to stderr by design; that output is the build log.
+"scripts/*" = ["T201"]
 
 [tool.mypy]
 python_version = "3.13"
