@@ -3,6 +3,8 @@
  * from /openapi.json later; until then it is the single definition of the contract.
  */
 
+export type Role = 'interviewer' | 'candidate';
+
 export type Seniority = 'junior' | 'intermediate' | 'senior' | 'principal';
 
 export type QuestionKind = 'conceptual' | 'practical' | 'debugging' | 'design';
@@ -101,4 +103,34 @@ export interface ApiError {
   message: string;
   details: Record<string, unknown>;
   correlation_id: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  full_name: string;
+  password: string;
+}
+
+export interface TokenResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+}
+
+export interface CurrentUser {
+  id: string;
+  email: string;
+  full_name: string;
+  role: Role;
+}
+
+export interface Invite {
+  interview_id: string;
+  invite_token: string;
+  expires_in_days: number;
 }
