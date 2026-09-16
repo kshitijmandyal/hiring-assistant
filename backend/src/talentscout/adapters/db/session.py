@@ -1,6 +1,7 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -9,7 +10,22 @@ from sqlalchemy.ext.asyncio import (
 )
 
 
-def build_engine(database_url: str, *, echo: bool = False) -> AsyncEngine:
+def build_engine(
+    database_url: str,
+    *,
+    echo: bool = False,
+    serverless: bool = False,
+) -> AsyncEngine:
+    """Create the engine.
+
+    On serverless the process is torn down between requests, so SQLAlchemy's own pool
+    would hold connections that never get reused and are never cleanly closed — enough
+    concurrent invocations and the database refuses new ones. NullPool opens and closes
+    per session and leaves the pooling to the provider's connection pooler (use Neon's
+    `-pooler` host).
+    """
+    if serverless:
+        return create_async_engine(database_url, echo=echo, poolclass=NullPool)
     return create_async_engine(database_url, echo=echo, pool_pre_ping=True)
 
 

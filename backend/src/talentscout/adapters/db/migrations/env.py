@@ -1,4 +1,5 @@
 import asyncio
+import os
 from logging.config import fileConfig
 
 from alembic import context
@@ -14,9 +15,21 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# The URL comes from Settings rather than alembic.ini so there is one source of
-# truth for it, and no credentials live in a committed file.
-config.set_main_option("sqlalchemy.url", str(get_settings().database_url))
+
+def _database_url() -> str:
+    """DATABASE_URL first, Settings second.
+
+    Migrations run in build environments that have the database URL but not the
+    application's other secrets, so requiring a full Settings object here would make
+    a deploy fail for want of an API key it never uses.
+    """
+    if url := os.environ.get("DATABASE_URL"):
+        return url
+    return str(get_settings().database_url)
+
+
+# No credentials in alembic.ini; the URL is resolved at runtime.
+config.set_main_option("sqlalchemy.url", _database_url())
 
 target_metadata = Base.metadata
 

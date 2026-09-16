@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     claude_max_tokens: int = CLAUDE_MAX_TOKENS
 
     database_url: PostgresDsn
+    # Set on Vercel and any other per-request runtime: switches the engine to
+    # NullPool so connections are not held across invocations.
+    serverless: bool = False
 
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     # Human-readable logs locally, JSON everywhere a log aggregator is reading.

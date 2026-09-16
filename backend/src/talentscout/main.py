@@ -29,7 +29,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     configure_logging(level=settings.log_level, json_output=settings.log_json)
 
-    engine = build_engine(str(settings.database_url), echo=settings.debug)
+    engine = build_engine(
+        str(settings.database_url),
+        echo=settings.debug,
+        serverless=settings.serverless,
+    )
     app.state.engine = engine
     app.state.session_factory = build_session_factory(engine)
     app.state.token_service = TokenService(settings.jwt_secret.get_secret_value())

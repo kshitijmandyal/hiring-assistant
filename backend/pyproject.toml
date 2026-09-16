@@ -25,6 +25,17 @@ dev = [
     "import-linter>=2.4",
 ]
 
+# Vercel looks for a FastAPI instance named `app` at conventional paths; ours is
+# nested deeper than those, so point at it explicitly.
+[tool.vercel]
+entrypoint = "src.talentscout.main:app"
+
+# Runs after dependencies install and before deploy. Serverless has no boot step,
+# so this is where migrations happen. `alembic upgrade head` is idempotent, so
+# running it on every deploy is safe.
+[tool.vercel.scripts]
+build = "python scripts/migrate.py"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
