@@ -4,6 +4,22 @@ Both halves run on Vercel, with Postgres on Neon. All free, no card needed.
 
 One repo, two Vercel projects — they differ only by Root Directory.
 
+## 0. Git identity
+
+Vercel refuses to deploy a commit whose author email isn't a real address. If
+`user.email` is unset, git invents one from the hostname (`you@Your-MacBook.local`)
+and the deploy fails.
+
+Set it per repo rather than globally, so a personal address doesn't end up on work
+commits:
+
+```bash
+git config --local user.email "you@example.com"
+git config --local user.name "Your Name"
+```
+
+Existing commits keep the old author; only new ones are fixed. Push one to redeploy.
+
 ## 1. Database (Neon)
 
 1. Sign up at [neon.tech](https://neon.tech) and create a project.
