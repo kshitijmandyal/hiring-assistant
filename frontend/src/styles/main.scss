@@ -1,0 +1,6 @@
+// Global stylesheet. Imported once, in main.tsx.
+// Component styles live beside their component as .module.scss.
+@use 'base/reset';
+@use 'base/typography';
+@use 'utilities/layout';
+@use 'utilities/text';

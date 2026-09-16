@@ -1,0 +1,25 @@
+@use '@/styles/abstracts' as a;
+
+.card {
+  @include a.card;
+  @include a.stack(a.$space-md);
+}
+
+.number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: a.$brand-50;
+  color: a.$brand-600;
+  font-size: a.$text-sm;
+  font-weight: a.$weight-semibold;
+  flex-shrink: 0;
+}
+
+.prompt {
+  font-size: a.$text-lg;
+  line-height: 1.5;
+}

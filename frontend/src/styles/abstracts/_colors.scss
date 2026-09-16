@@ -1,0 +1,35 @@
+// Semantic colour names only. A component should never reference a raw hex.
+
+$brand-500: #4f46e5;
+$brand-600: #4338ca;
+$brand-50: #eef2ff;
+
+$grey-900: #111827;
+$grey-700: #374151;
+$grey-500: #6b7280;
+$grey-300: #d1d5db;
+$grey-100: #f3f4f6;
+$grey-50: #f9fafb;
+$white: #ffffff;
+
+$success-600: #059669;
+$success-50: #ecfdf5;
+$warning-600: #d97706;
+$warning-50: #fffbeb;
+$danger-600: #dc2626;
+$danger-50: #fef2f2;
+
+// Semantic aliases
+$color-text: $grey-900;
+$color-text-muted: $grey-500;
+$color-border: $grey-300;
+$color-surface: $white;
+$color-background: $grey-50;
+
+// Recommendation outcomes, shared by the assessment view and any future list.
+$recommendation-colors: (
+  'strong_proceed': $success-600,
+  'proceed': $success-600,
+  'borderline': $warning-600,
+  'do_not_proceed': $danger-600,
+);

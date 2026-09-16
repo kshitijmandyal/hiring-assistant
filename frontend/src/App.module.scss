@@ -1,0 +1,19 @@
+@use '@/styles/abstracts' as a;
+
+.app {
+  min-height: 100vh;
+  padding-bottom: a.$space-2xl;
+}
+
+.masthead {
+  background: a.$color-surface;
+  border-bottom: 1px solid a.$color-border;
+  padding-block: a.$space-md;
+  margin-bottom: a.$space-xl;
+}
+
+.brand {
+  font-weight: a.$weight-semibold;
+  font-size: a.$text-lg;
+  letter-spacing: -0.01em;
+}

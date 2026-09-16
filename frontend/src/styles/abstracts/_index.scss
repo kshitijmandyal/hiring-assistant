@@ -1,0 +1,4 @@
+// Single import surface: components write `@use '@/styles/abstracts' as a;`
+@forward 'variables';
+@forward 'colors';
+@forward 'mixins';

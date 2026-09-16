@@ -1,0 +1,23 @@
+@use '../abstracts' as a;
+
+.u-text-muted {
+  color: a.$color-text-muted;
+}
+
+.u-text-sm {
+  font-size: a.$text-sm;
+}
+
+.u-text-xs {
+  font-size: a.$text-xs;
+}
+
+.u-text-center {
+  text-align: center;
+}
+
+.u-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
