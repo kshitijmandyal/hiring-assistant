@@ -17,6 +17,7 @@ from talentscout.adapters.claude.client import ClaudeClient
 from talentscout.adapters.claude.grader import ClaudeAnswerGrader
 from talentscout.adapters.claude.question_generator import ClaudeQuestionGenerator
 from talentscout.adapters.claude.summariser import ClaudeAssessmentSummariser
+from talentscout.adapters.db.attempt_limiter import PostgresAttemptLimiter
 from talentscout.adapters.db.auth_repository import (
     PostgresRefreshTokenRepository,
     PostgresUserRepository,
@@ -73,12 +74,13 @@ TokenServiceDep = Annotated[TokenService, Depends(get_token_service)]
 # --- Services ---------------------------------------------------------------
 
 
-def get_auth_service(session: SessionDep, tokens: TokenServiceDep) -> AuthService:
+def get_auth_service(request: Request, session: SessionDep, tokens: TokenServiceDep) -> AuthService:
     return AuthService(
         users=PostgresUserRepository(session),
         refresh_tokens=PostgresRefreshTokenRepository(session),
         tokens=tokens,
         passwords=BcryptPasswordHasher(),
+        limiter=PostgresAttemptLimiter(request.app.state.session_factory),
     )
 
 
@@ -100,6 +102,18 @@ def get_assessment_service(session: SessionDep, claude: ClaudeDep) -> Assessment
 
 
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
+
+
+def get_client_ip(request: Request) -> str:
+    """Vercel sets x-real-ip itself and drops any client-sent value, so it cannot be
+    spoofed there. Locally there is no proxy and the socket address is the client.
+    """
+    if forwarded := request.headers.get("x-real-ip"):
+        return forwarded
+    return request.client.host if request.client else "unknown"
+
+
+ClientIpDep = Annotated[str, Depends(get_client_ip)]
 ScreeningServiceDep = Annotated[ScreeningService, Depends(get_screening_service)]
 AssessmentServiceDep = Annotated[AssessmentService, Depends(get_assessment_service)]
 SettingsDep = Annotated[Settings, Depends(get_app_settings)]

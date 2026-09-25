@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import Any, Protocol, runtime_checkable
 from uuid import UUID
 
+from talentscout.constants.auth import AttemptKind
 from talentscout.domain.assessment import Assessment, QuestionAssessment
 from talentscout.domain.candidate import Candidate
 from talentscout.domain.enums import SeniorityLevel
@@ -142,3 +143,20 @@ class RefreshTokenRepository(Protocol):
     async def is_active(self, jti: str) -> bool: ...
 
     async def revoke(self, jti: str) -> None: ...
+
+
+@runtime_checkable
+class AttemptLimiter(Protocol):
+    """Counts attempts per key inside a sliding window.
+
+    Writes must survive the caller's transaction rolling back: a failed login raises,
+    and the failure it records is the whole point.
+    """
+
+    async def retry_after(self, kind: AttemptKind, key: str) -> int | None:
+        """Seconds until another attempt is allowed, or None if one is allowed now."""
+        ...
+
+    async def record(self, kind: AttemptKind, key: str) -> None: ...
+
+    async def clear(self, kind: AttemptKind, key: str) -> None: ...
