@@ -15,6 +15,7 @@ import { LoginForm } from '@/features/auth/LoginForm';
 import { useLogoutMutation } from '@/features/auth/authApi';
 import { CandidateForm } from '@/features/candidate/CandidateForm';
 import { InterviewView } from '@/features/interview/InterviewView';
+import { useGetInterviewQuery } from '@/features/interview/interviewApi';
 import { InviteLink } from '@/features/interview/InviteLink';
 import { TechStackForm } from '@/features/interview/TechStackForm';
 import { useInviteToken } from '@/hooks/useInviteToken';
@@ -28,9 +29,12 @@ function InterviewerFlow() {
   const candidateId = useAppSelector((state) => state.session.candidateId);
   const interviewId = useAppSelector((state) => state.session.interviewId);
 
-  // Once an assessment exists the interview is over, so results take precedence.
-  const { data: assessment } = useGetAssessmentQuery(interviewId ?? '', {
+  // Only a finalised interview has an assessment; asking earlier is a guaranteed 404.
+  const { data: interview } = useGetInterviewQuery(interviewId ?? '', {
     skip: !interviewId,
+  });
+  const { data: assessment } = useGetAssessmentQuery(interviewId ?? '', {
+    skip: interview?.status !== 'finalised',
   });
 
   if (!candidateId) return <CandidateForm />;

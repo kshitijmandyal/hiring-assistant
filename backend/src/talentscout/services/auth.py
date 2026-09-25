@@ -8,9 +8,15 @@ import logging
 import secrets
 from uuid import UUID
 
+from talentscout.constants.auth import AttemptKind
 from talentscout.domain.user import User
-from talentscout.exceptions import InvalidCredentialsError, TokenInvalidError
+from talentscout.exceptions import (
+    InvalidCredentialsError,
+    TokenInvalidError,
+    TooManyAttemptsError,
+)
 from talentscout.interfaces import (
+    AttemptLimiter,
     PasswordHasher,
     RefreshTokenRepository,
     TokenIssuer,
@@ -28,13 +34,18 @@ class AuthService:
         refresh_tokens: RefreshTokenRepository,
         tokens: TokenIssuer,
         passwords: PasswordHasher,
+        limiter: AttemptLimiter,
     ) -> None:
         self._users = users
         self._refresh_tokens = refresh_tokens
         self._tokens = tokens
         self._passwords = passwords
+        self._limiter = limiter
 
-    async def register(self, *, email: str, full_name: str, password: str) -> User:
+    async def register(self, *, email: str, full_name: str, password: str, client_ip: str) -> User:
+        # Counted whether or not it succeeds: a 409 reveals that an email is registered.
+        await self._enforce(AttemptKind.REGISTER_IP, client_ip)
+        await self._limiter.record(AttemptKind.REGISTER_IP, client_ip)
         user = User(
             email=email,
             full_name=full_name,
@@ -44,8 +55,22 @@ class AuthService:
         logger.info("Interviewer registered")
         return user
 
-    async def login(self, *, email: str, password: str) -> tuple[str, str]:
+    async def login(self, *, email: str, password: str, client_ip: str) -> tuple[str, str]:
         """Returns (access_token, refresh_token)."""
+        # Checked before the user lookup, so an unknown email is throttled exactly like
+        # a real one and the limit itself reveals nothing.
+        await self._enforce(AttemptKind.LOGIN_EMAIL, email)
+        await self._enforce(AttemptKind.LOGIN_IP, client_ip)
+        try:
+            access, refresh = await self._authenticate(email=email, password=password)
+        except InvalidCredentialsError:
+            await self._limiter.record(AttemptKind.LOGIN_EMAIL, email)
+            await self._limiter.record(AttemptKind.LOGIN_IP, client_ip)
+            raise
+        await self._limiter.clear(AttemptKind.LOGIN_EMAIL, email)
+        return access, refresh
+
+    async def _authenticate(self, *, email: str, password: str) -> tuple[str, str]:
         user = await self._users.find_by_email(email)
 
         if user is None:
@@ -82,11 +107,16 @@ class AuthService:
             return  # Logging out with an already-dead token is not an error.
         await self._refresh_tokens.revoke(str(payload["jti"]))
 
-    async def revoke_all_sessions(self, user_id: UUID) -> None:
-        await self._refresh_tokens.revoke_all_for_user(user_id)
-
     def issue_invite(self, *, candidate_id: UUID, interview_id: UUID) -> str:
         return self._tokens.issue_invite_token(candidate_id=candidate_id, interview_id=interview_id)
+
+    async def _enforce(self, kind: AttemptKind, key: str) -> None:
+        if (wait := await self._limiter.retry_after(kind, key)) is not None:
+            minutes = -(-wait // 60)
+            raise TooManyAttemptsError(
+                f"Too many attempts. Try again in {minutes} minute{'s' if minutes != 1 else ''}.",
+                retry_after_seconds=wait,
+            )
 
     def _decoy_hash(self) -> str:
         """A genuine hash of a random secret, produced once per process.

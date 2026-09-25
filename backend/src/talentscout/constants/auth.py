@@ -30,11 +30,25 @@ BCRYPT_ROUNDS: Final = 12
 
 BEARER_SCHEME: Final = "Bearer"
 
+# Brute-force limits. Per email stops guessing one password; per IP stops one caller
+# spraying many accounts or probing which emails are registered.
+LOGIN_FAILURES_PER_EMAIL: Final = 5
+LOGIN_FAILURES_PER_IP: Final = 20
+LOGIN_WINDOW_MINUTES: Final = 15
+REGISTRATIONS_PER_IP: Final = 10
+REGISTER_WINDOW_MINUTES: Final = 60
+
 
 class TokenType(StrEnum):
     ACCESS = "access"
     REFRESH = "refresh"
     INVITE = "invite"
+
+
+class AttemptKind(StrEnum):
+    LOGIN_EMAIL = "login_email"
+    LOGIN_IP = "login_ip"
+    REGISTER_IP = "register_ip"
 
 
 class Role(StrEnum):

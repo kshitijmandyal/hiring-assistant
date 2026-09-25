@@ -13,6 +13,7 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -188,3 +189,19 @@ class RefreshTokenRow(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     user: Mapped[UserRow] = relationship(back_populates="refresh_tokens")
+
+
+class AuthAttemptRow(Base):
+    """One row per counted login or registration attempt, for brute-force limits.
+
+    The key is a SHA-256 of the email or IP, so the table holds no raw PII. Rows past
+    their window are deleted as new ones arrive, which keeps it small.
+    """
+
+    __tablename__ = "auth_attempts"
+    __table_args__ = (Index("ix_auth_attempts_kind_key_created_at", "kind", "key", "created_at"),)
+
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    kind: Mapped[str] = mapped_column(String(20))
+    key: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

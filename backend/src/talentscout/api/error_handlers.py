@@ -23,6 +23,7 @@ from talentscout.exceptions import (
     NotFoundError,
     StorageError,
     TalentScoutError,
+    TooManyAttemptsError,
     ValidationError,
 )
 from talentscout.logging_config import get_correlation_id
@@ -36,6 +37,7 @@ _STATUS_BY_CODE: dict[ErrorCode, int] = {
     ErrorCode.GRADING_FAILED: status.HTTP_502_BAD_GATEWAY,
     ErrorCode.DUPLICATE_CANDIDATE: status.HTTP_409_CONFLICT,
     ErrorCode.EMAIL_ALREADY_REGISTERED: status.HTTP_409_CONFLICT,
+    ErrorCode.TOO_MANY_ATTEMPTS: status.HTTP_429_TOO_MANY_REQUESTS,
 }
 
 
@@ -79,7 +81,7 @@ def register_error_handlers(app: FastAPI) -> None:
         log("Request failed with %s (%d)", exc.code.value, http_status)
 
         headers = {}
-        if isinstance(exc, LLMRateLimitedError) and exc.retry_after_seconds:
+        if isinstance(exc, (LLMRateLimitedError, TooManyAttemptsError)) and exc.retry_after_seconds:
             headers["Retry-After"] = str(exc.retry_after_seconds)
         if http_status == status.HTTP_401_UNAUTHORIZED:
             # Required by RFC 9110 on a 401, and tells clients which scheme to use.

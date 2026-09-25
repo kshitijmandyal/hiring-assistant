@@ -17,6 +17,7 @@ from talentscout.adapters.claude.client import ClaudeClient
 from talentscout.adapters.claude.grader import ClaudeAnswerGrader
 from talentscout.adapters.claude.question_generator import ClaudeQuestionGenerator
 from talentscout.adapters.claude.summariser import ClaudeAssessmentSummariser
+from talentscout.adapters.db.attempt_limiter import PostgresAttemptLimiter
 from talentscout.adapters.db.auth_repository import (
     PostgresRefreshTokenRepository,
     PostgresUserRepository,
@@ -73,12 +74,13 @@ TokenServiceDep = Annotated[TokenService, Depends(get_token_service)]
 # --- Services ---------------------------------------------------------------
 
 
-def get_auth_service(session: SessionDep, tokens: TokenServiceDep) -> AuthService:
+def get_auth_service(request: Request, session: SessionDep, tokens: TokenServiceDep) -> AuthService:
     return AuthService(
         users=PostgresUserRepository(session),
         refresh_tokens=PostgresRefreshTokenRepository(session),
         tokens=tokens,
         passwords=BcryptPasswordHasher(),
+        limiter=PostgresAttemptLimiter(request.app.state.session_factory),
     )
 
 
@@ -100,6 +102,18 @@ def get_assessment_service(session: SessionDep, claude: ClaudeDep) -> Assessment
 
 
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
+
+
+def get_client_ip(request: Request) -> str:
+    """Vercel sets x-real-ip itself and drops any client-sent value, so it cannot be
+    spoofed there. Locally there is no proxy and the socket address is the client.
+    """
+    if forwarded := request.headers.get("x-real-ip"):
+        return forwarded
+    return request.client.host if request.client else "unknown"
+
+
+ClientIpDep = Annotated[str, Depends(get_client_ip)]
 ScreeningServiceDep = Annotated[ScreeningService, Depends(get_screening_service)]
 AssessmentServiceDep = Annotated[AssessmentService, Depends(get_assessment_service)]
 SettingsDep = Annotated[Settings, Depends(get_app_settings)]
@@ -120,21 +134,15 @@ def get_principal(
 PrincipalDep = Annotated[Principal, Depends(get_principal)]
 
 
-def require_interviewer(principal: PrincipalDep) -> Principal:
+async def get_current_user(principal: PrincipalDep, session: SessionDep) -> User:
     """Guards everything that costs money or exposes grading internals.
 
     Question generation and grading both call Claude, so leaving them open would let
-    anyone spend the account's credits.
+    anyone spend the account's credits. The user row is re-read on every request so a
+    disabled account loses access at once, not when its access token expires.
     """
     if not principal.is_interviewer:
         raise AuthorizationError("This action requires an interviewer account")
-    return principal
-
-
-InterviewerDep = Annotated[Principal, Depends(require_interviewer)]
-
-
-async def get_current_user(principal: InterviewerDep, session: SessionDep) -> User:
     user = await PostgresUserRepository(session).get(principal.subject_id)
     if user is None or not user.is_active:
         # The token is validly signed but the account behind it is gone or disabled.
@@ -143,6 +151,13 @@ async def get_current_user(principal: InterviewerDep, session: SessionDep) -> Us
 
 
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
+
+
+def require_interviewer(_user: CurrentUserDep, principal: PrincipalDep) -> Principal:
+    return principal
+
+
+InterviewerDep = Annotated[Principal, Depends(require_interviewer)]
 
 
 def require_interview_access(

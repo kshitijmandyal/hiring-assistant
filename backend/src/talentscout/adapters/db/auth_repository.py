@@ -71,15 +71,3 @@ class PostgresRefreshTokenRepository:
         if row is not None and row.revoked_at is None:
             row.revoked_at = datetime.now(UTC)
             await self._session.flush()
-
-    async def revoke_all_for_user(self, user_id: UUID) -> None:
-        result = await self._session.execute(
-            select(RefreshTokenRow).where(
-                RefreshTokenRow.user_id == user_id,
-                RefreshTokenRow.revoked_at.is_(None),
-            )
-        )
-        now = datetime.now(UTC)
-        for row in result.scalars():
-            row.revoked_at = now
-        await self._session.flush()

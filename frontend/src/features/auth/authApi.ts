@@ -2,7 +2,6 @@ import { api } from '@/api/api';
 import { ENDPOINTS } from '@/api/endpoints';
 import type {
   CurrentUser,
-  Invite,
   LoginRequest,
   RegisterRequest,
   TokenResponse,
@@ -31,13 +30,6 @@ export const authApi = api.injectEndpoints({
       query: () => ENDPOINTS.auth.me(),
       providesTags: ['User'],
     }),
-
-    createInvite: builder.mutation<Invite, string>({
-      query: (interviewId) => ({
-        url: ENDPOINTS.interviews.invite(interviewId),
-        method: 'POST',
-      }),
-    }),
   }),
 });
 
@@ -46,5 +38,4 @@ export const {
   useRegisterMutation,
   useLogoutMutation,
   useMeQuery,
-  useCreateInviteMutation,
 } = authApi;

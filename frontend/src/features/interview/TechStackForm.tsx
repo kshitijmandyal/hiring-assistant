@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -35,7 +36,7 @@ export function TechStackForm({ candidateId }: TechStackFormProps) {
   const [startInterview, { isLoading, error }] = useStartInterviewMutation();
   const dispatch = useAppDispatch();
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     try {
       const interview = await startInterview({
