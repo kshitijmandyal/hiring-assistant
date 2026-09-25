@@ -122,6 +122,11 @@ class PostgresInterviewRepository:
             raise InterviewNotFoundError("No interview with that id")
         return interview_mapper.to_domain(row)
 
+    async def lock(self, interview_id: UUID) -> None:
+        await self._session.execute(
+            select(InterviewRow.id).where(InterviewRow.id == interview_id).with_for_update()
+        )
+
     async def list_for_candidate(self, candidate_id: UUID) -> list[Interview]:
         result = await self._session.execute(
             select(InterviewRow)

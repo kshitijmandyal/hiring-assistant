@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
 import { ErrorNotice } from '@/components/ErrorNotice';
-import { useCreateInviteMutation } from '@/features/auth/authApi';
+import { useCreateInviteMutation } from './interviewApi';
 import styles from './InviteLink.module.scss';
 
 interface InviteLinkProps {

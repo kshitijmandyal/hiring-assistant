@@ -120,21 +120,15 @@ def get_principal(
 PrincipalDep = Annotated[Principal, Depends(get_principal)]
 
 
-def require_interviewer(principal: PrincipalDep) -> Principal:
+async def get_current_user(principal: PrincipalDep, session: SessionDep) -> User:
     """Guards everything that costs money or exposes grading internals.
 
     Question generation and grading both call Claude, so leaving them open would let
-    anyone spend the account's credits.
+    anyone spend the account's credits. The user row is re-read on every request so a
+    disabled account loses access at once, not when its access token expires.
     """
     if not principal.is_interviewer:
         raise AuthorizationError("This action requires an interviewer account")
-    return principal
-
-
-InterviewerDep = Annotated[Principal, Depends(require_interviewer)]
-
-
-async def get_current_user(principal: InterviewerDep, session: SessionDep) -> User:
     user = await PostgresUserRepository(session).get(principal.subject_id)
     if user is None or not user.is_active:
         # The token is validly signed but the account behind it is gone or disabled.
@@ -143,6 +137,13 @@ async def get_current_user(principal: InterviewerDep, session: SessionDep) -> Us
 
 
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
+
+
+def require_interviewer(_user: CurrentUserDep, principal: PrincipalDep) -> Principal:
+    return principal
+
+
+InterviewerDep = Annotated[Principal, Depends(require_interviewer)]
 
 
 def require_interview_access(

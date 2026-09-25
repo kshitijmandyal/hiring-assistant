@@ -1,6 +1,11 @@
 import { api } from '@/api/api';
 import { ENDPOINTS } from '@/api/endpoints';
-import type { AnswerSubmitRequest, Interview, InterviewStartRequest } from '@/types/api';
+import type {
+  AnswerSubmitRequest,
+  Interview,
+  InterviewStartRequest,
+  Invite,
+} from '@/types/api';
 
 export const interviewApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -14,6 +19,13 @@ export const interviewApi = api.injectEndpoints({
         body,
       }),
       invalidatesTags: ['Interview'],
+    }),
+
+    createInvite: builder.mutation<Invite, string>({
+      query: (interviewId) => ({
+        url: ENDPOINTS.interviews.invite(interviewId),
+        method: 'POST',
+      }),
     }),
 
     getInterview: builder.query<Interview, string>({
@@ -48,5 +60,9 @@ export const interviewApi = api.injectEndpoints({
   }),
 });
 
-export const { useStartInterviewMutation, useGetInterviewQuery, useSubmitAnswerMutation } =
-  interviewApi;
+export const {
+  useStartInterviewMutation,
+  useCreateInviteMutation,
+  useGetInterviewQuery,
+  useSubmitAnswerMutation,
+} = interviewApi;

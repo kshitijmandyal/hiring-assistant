@@ -82,9 +82,6 @@ class AuthService:
             return  # Logging out with an already-dead token is not an error.
         await self._refresh_tokens.revoke(str(payload["jti"]))
 
-    async def revoke_all_sessions(self, user_id: UUID) -> None:
-        await self._refresh_tokens.revoke_all_for_user(user_id)
-
     def issue_invite(self, *, candidate_id: UUID, interview_id: UUID) -> str:
         return self._tokens.issue_invite_token(candidate_id=candidate_id, interview_id=interview_id)
 

@@ -85,6 +85,10 @@ class InterviewRepository(Protocol):
 
     async def list_for_candidate(self, candidate_id: UUID) -> list[Interview]: ...
 
+    async def lock(self, interview_id: UUID) -> None:
+        """Holds the interview for the rest of the transaction; concurrent lockers wait."""
+        ...
+
 
 @runtime_checkable
 class AssessmentRepository(Protocol):
@@ -138,5 +142,3 @@ class RefreshTokenRepository(Protocol):
     async def is_active(self, jti: str) -> bool: ...
 
     async def revoke(self, jti: str) -> None: ...
-
-    async def revoke_all_for_user(self, user_id: UUID) -> None: ...

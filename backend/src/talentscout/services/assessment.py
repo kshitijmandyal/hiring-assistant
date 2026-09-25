@@ -31,6 +31,9 @@ class AssessmentService:
         self._summariser = summariser
 
     async def finalise(self, interview_id: UUID) -> Assessment:
+        # A double-clicked submit must not grade twice: the second request waits here
+        # until the first commits, then finds its assessment below.
+        await self._interviews.lock(interview_id)
         interview = await self._interviews.get(interview_id)
 
         existing = await self._assessments.get_for_interview(interview_id)
